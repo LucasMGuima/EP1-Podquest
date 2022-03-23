@@ -1,7 +1,7 @@
 # EP1-Podquest
 Um MVP (Minimum Viable Product), que tem como foco armazenar episódios de podcast.
 
-##Como usar
+## Como usar
 Para usar o programa apenas entre com um numero da opção desejada, e siga as instruções dadas pelo programa.
 
 ## Funções
