@@ -6,7 +6,7 @@ Para usar o programa apenas entre com um numero da opção desejada, e siga as i
 
 ## Funções
 - criarPlaylist(){ }
-        Cria uma playlist vazia para o usuario.
+		Cria uma playlist vazia para o usuario.
 - mostrar(){ }
 		Mostra tosdos os elementos da playlist, se estiver vazia retorna que está vazia.
 - adicionar(){ }
