@@ -32,6 +32,11 @@ int main() {
 	return 0;
 }
 
+/**
+* @brief Cria uma playliste com n elementos usando inicio como cabeça
+* @param inicio -> nó que representa o inicio da lista
+* @param elemento -> quantida de elementos da lista
+*/
 void criarPlaylist(Episodio inicio, int elementos) {
 	for (int i = 0; i < elementos; i++) {
 		int num = (rand()+i)/elementos;
@@ -39,7 +44,10 @@ void criarPlaylist(Episodio inicio, int elementos) {
 	}
 }
 
-
+/**
+* @brief Mostra o conteudo dos elementos da lista
+* @param inicio -> nó que representa o inicio da lista
+*/
 void mostrar(Episodio inicio) {
 	Episodio aux = inicio->prox;
 	while (aux->prox != NULL) {
