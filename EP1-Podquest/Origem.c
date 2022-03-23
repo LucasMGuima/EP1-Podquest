@@ -11,49 +11,67 @@ typedef struct podcast {
 
 typedef Podcast* Episodio;
 
-void adicionar();
+typedef struct lista {
+	struct Episodio* inicio;
+	struct Episodio* ultimo;
+}Lista;
+
+typedef Lista* Playlist;
+
+void adicionar(Playlist playlist);
 void remover(int id);
 void tocar();
 void shuffle();
 void proximo();
 
 Episodio criarEp(Episodio inicio);
-void criarPlaylist(Episodio inicio);
-void mostrar(Episodio inicio);
+Playlist criarPlaylist();
+void mostrar(Playlist playlist);
 
 int main() {
-	Episodio inicio = (Episodio)malloc(sizeof(Episodio));
-	inicio->prev = NULL;
-	inicio->prox = NULL;
-
-	criarPlaylist(inicio, 70);
-	mostrar(inicio);
+	Playlist playlist = criarPlaylist();
+	adicionar(playlist);
+	adicionar(playlist);
+	adicionar(playlist);
+	mostrar(playlist);
 
 	return 0;
 }
 
 /**
-* @brief Cria uma playliste com n elementos usando inicio como cabeça
-* @param inicio -> nó que representa o inicio da lista
-* @param elemento -> quantida de elementos da lista
+* @brief Cria uma playliste vazia
+* @return Playlist vazia
 */
-void criarPlaylist(Episodio inicio, int elementos) {
-	for (int i = 0; i < elementos; i++) {
-		int num = (rand()+i)/elementos;
-		adicionar(inicio, num);
-	}
+Playlist criarPlaylist() {
+	Playlist playlist = (Playlist)malloc(sizeof(Playlist));
+	playlist->inicio = NULL;
+	playlist->ultimo = NULL;
+	return playlist;
 }
 
 /**
-* @brief Mostra o conteudo dos elementos da lista
-* @param inicio -> nó que representa o inicio da lista
+* @brief Mostra o conteudo dos elementos da lista, se estiver vazia escreve na tela que a playlist está vazia
+* @param Playlist -> Lista que representa a playlist
 */
-void mostrar(Episodio inicio) {
-	Episodio aux = inicio->prox;
-	while (aux->prox != NULL) {
-		printf_s("%d ",aux->id);
-		aux = aux->prox;
+void mostrar(Playlist playlist) {
+	//playlist esta fazia
+	if (playlist->inicio == NULL) {
+		printf_s("A Playlist está vazia");
+		return;
 	}
+
+	Episodio aux = playlist->inicio;
+	//a lista so tem um elemento
+	if (aux->prox == NULL) {
+		printf_s("%d |", aux->id);
+		return;
+	}
+
+	//a lista tem mais de um elemento
+	do {
+		printf_s("%d |",aux->id);
+		aux = aux->prox;
+	} while (aux != NULL);
 }
 
 /**
@@ -70,17 +88,16 @@ Episodio criarEp(Episodio inicio) {
 
 /**
  * @brief Função que adiciona um episodio a Playlsist
- * @param inicio -> nó que representa a cabeça da lista
- * @param id -> numero do ID do episodio
+ * @param Playlist -> Lista que representa a playlist
  */
-void adicionar(Episodio inicio, int id) {
-	Episodio novo = criarEp(inicio);
-	novo->id = id;
-	if (inicio->prox == NULL) { //se a lista esta vazia
-		inicio->prox = novo;
+void adicionar(Playlist playlist) {
+	Episodio novo = criarEp(playlist->inicio);
+	novo->id = rand();
+	if (playlist->inicio == NULL) { //se a lista esta vazia
+		playlist->inicio = novo;
 		return;
 	}
-	novo->prox = inicio->prox;
-	inicio->prox = novo;
+	novo->prox = playlist->inicio;
+	playlist->inicio = novo;
 }
 
