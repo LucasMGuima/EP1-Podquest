@@ -1,39 +1,56 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct podcast {
+typedef struct episodio {
 	int id;
 	int numeroEp;
 
-	struct Podcast* prox;
-	struct Podcast* prev;
-}Podcast;
+	struct Episodio* prox;
+	struct Episodio* prev;
+}Episodio;
 
-typedef Podcast* Episodio;
-
-typedef struct lista {
+typedef struct listaEp {
 	struct Episodio* inicio;
 	struct Episodio* ultimo;
-}Lista;
+}ListaEp;
 
-typedef Lista* Playlist;
+typedef struct podcast{
+	//nome do podcast vai ser uma string futuramente
+	int nome;
 
-void adicionar(Playlist playlist);
+	struct Podcast* prox;
+	struct Podcast* prev;
+
+	//lista contendo os episodios do podcast
+	struct ListaEp* listEpisodios;
+}Podcast;
+
+typedef struct listPodcast {
+	struct Podcast* inicio;
+	struct Podcast* ultimo;
+}ListaPodcast;
+
+typedef struct playlist {
+	struct ListaPodcast* listPodcast;
+}Playlist;
+
+typedef Episodio* Ep;
+typedef Podcast* Podcst;
+typedef Playlist* Plylist;
+
+void adicionarEP(Plylist playlist, Podcst podcast);
+void adicionarPodcast(Plylist playlist);
 void remover(int id);
 void tocar();
 void shuffle();
 void proximo();
+void mostrar(Plylist playlist);
 
-Episodio criarEp(Episodio inicio);
-Playlist criarPlaylist();
-void mostrar(Playlist playlist);
+Ep criarEp();
+Plylist criarPlaylist();
 
 int main() {
-	Playlist playlist = criarPlaylist();
-	adicionar(playlist);
-	adicionar(playlist);
-	adicionar(playlist);
-	mostrar(playlist);
+	Plylist playlist = criarPlaylist();
 
 	return 0;
 }
@@ -42,10 +59,12 @@ int main() {
 * @brief Cria uma playliste vazia
 * @return Playlist vazia
 */
-Playlist criarPlaylist() {
-	Playlist playlist = (Playlist)malloc(sizeof(Playlist));
-	playlist->inicio = NULL;
-	playlist->ultimo = NULL;
+Plylist criarPlaylist() {
+	Plylist playlist = (Plylist)malloc(sizeof(Plylist));
+	ListaPodcast* auxLista = (ListaPodcast*)malloc(sizeof(ListaPodcast));
+	auxLista->inicio = NULL;
+	auxLista->ultimo = NULL;
+	playlist->listPodcast = auxLista;
 	return playlist;
 }
 
@@ -53,25 +72,33 @@ Playlist criarPlaylist() {
 * @brief Mostra o conteudo dos elementos da lista, se estiver vazia escreve na tela que a playlist está vazia
 * @param Playlist -> Lista que representa a playlist
 */
-void mostrar(Playlist playlist) {
+void mostrar(Plylist playlist) {
 	//playlist esta fazia
-	if (playlist->inicio == NULL) {
+	if (playlist->listPodcast == NULL) {
 		printf_s("A Playlist está vazia");
 		return;
 	}
 
-	Episodio aux = playlist->inicio;
-	//a lista so tem um elemento
-	if (aux->prox == NULL) {
-		printf_s("%d |", aux->id);
-		return;
-	}
+	//imprime todos os episdodios de todos os podcasts contidos na playlist
+	ListaPodcast* auxListPodCst = playlist->listPodcast;
+	for (Podcst auxPodcast = playlist->listPodcast; auxPodcast != auxListPodCst->ultimo; auxPodcast = auxPodcast->prox) {
+		ListaEp* auxListaEp = auxPodcast->listEpisodios;
+		Ep auxEp = auxListaEp->inicio;
+		
+		printf("Podcast: %d \n", auxPodcast->nome);
+		
+		//O podcast so tem um episodio
+		if (auxEp == auxListaEp->ultimo) {
+			printf_s("Ep. %d | ", auxEp->id);
+			printf("\n");
+			auxEp = auxListaEp->ultimo;
+		}
 
-	//a lista tem mais de um elemento
-	do {
-		printf_s("%d |",aux->id);
-		aux = aux->prox;
-	} while (aux != NULL);
+		for (; auxEp != auxListaEp->ultimo; auxEp = auxEp->prox) {
+			printf_s("Ep. %d | ", auxEp->id);
+		}
+		printf("\n");
+	}
 }
 
 /**
@@ -79,8 +106,8 @@ void mostrar(Playlist playlist) {
  * @param inicio -> nó que representa a cabeça da lista
  * @return Retorna o Episodio generico criado
  */
-Episodio criarEp(Episodio inicio) {
-	Episodio novo = (Episodio)malloc(sizeof(Episodio));
+Ep criarEp() {
+	Ep novo = (Ep)malloc(sizeof(Ep));
 	novo->prev = NULL;
 	novo->prox = NULL;
 	return novo;
@@ -89,15 +116,24 @@ Episodio criarEp(Episodio inicio) {
 /**
  * @brief Função que adiciona um episodio a Playlsist
  * @param Playlist -> Lista que representa a playlist
+ * @param Podcast -> Pocast a qual o episodio criado faz parte
  */
-void adicionar(Playlist playlist) {
-	Episodio novo = criarEp(playlist->inicio);
+void adicionarEP(Plylist playlist, Podcst podcast) {
+	Ep novo = criarEp();
 	novo->id = rand();
-	if (playlist->inicio == NULL) { //se a lista esta vazia
-		playlist->inicio = novo;
-		return;
-	}
-	novo->prox = playlist->inicio;
-	playlist->inicio = novo;
+	
+	//Adciona ao podcast
+	ListaEp* auxListaEp = podcast->listEpisodios;
+	if (auxListaEp->inicio != NULL) novo->prox = auxListaEp->inicio;
+	if (auxListaEp->ultimo == NULL) auxListaEp->ultimo = novo;
+	auxListaEp->inicio = novo;
+}
+
+/**
+* @brief Função para adicionar um podcasta a playlist
+* @param Playlist -> Playlist onde o podcast sera incerido
+*/
+void adicionarPodcast(Plylist playlist) {
+
 }
 
