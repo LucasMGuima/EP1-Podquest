@@ -15,8 +15,7 @@ typedef struct listaEp {
 }ListaEp;
 
 typedef struct podcast{
-	//nome do podcast vai ser uma string futuramente
-	int nome;
+	char nome[10];
 
 	struct Podcast* prox;
 	struct Podcast* prev;
@@ -38,7 +37,7 @@ typedef Episodio* Ep;
 typedef Podcast* Podcst;
 typedef Playlist* Plylist;
 
-void adicionarEP(Plylist playlist, Podcst podcast);
+void adicionarEP(Plylist playlist);
 void adicionarPodcast(Plylist playlist);
 void remover(int id);
 void tocar();
@@ -51,6 +50,12 @@ Plylist criarPlaylist();
 
 int main() {
 	Plylist playlist = criarPlaylist();
+	adicionarPodcast(playlist);
+	adicionarPodcast(playlist);
+	adicionarPodcast(playlist);
+	mostrar(playlist);
+	adicionarEP(playlist);
+	mostrar(playlist);
 
 	return 0;
 }
@@ -75,18 +80,27 @@ Plylist criarPlaylist() {
 void mostrar(Plylist playlist) {
 	//playlist esta fazia
 	if (playlist->listPodcast == NULL) {
-		printf_s("A Playlist está vazia");
+		printf_s("A Playlist está vazia \n");
 		return;
 	}
 
 	//imprime todos os episdodios de todos os podcasts contidos na playlist
 	ListaPodcast* auxListPodCst = playlist->listPodcast;
-	for (Podcst auxPodcast = playlist->listPodcast; auxPodcast != auxListPodCst->ultimo; auxPodcast = auxPodcast->prox) {
+
+	//checa se so existe um podcast na playlist
+	if (auxListPodCst->inicio == auxListPodCst->ultimo) {
+		Podcst auxPodcast = auxListPodCst->inicio;
 		ListaEp* auxListaEp = auxPodcast->listEpisodios;
+
+		if (auxListaEp->inicio == NULL) {
+			printf("Podcast: %s esta vazio \n", auxPodcast->nome);
+			return;
+		}
+
 		Ep auxEp = auxListaEp->inicio;
-		
-		printf("Podcast: %d \n", auxPodcast->nome);
-		
+
+		printf("Podcast: %s \n", auxPodcast->nome);
+
 		//O podcast so tem um episodio
 		if (auxEp == auxListaEp->ultimo) {
 			printf_s("Ep. %d | ", auxEp->id);
@@ -97,7 +111,34 @@ void mostrar(Plylist playlist) {
 		for (; auxEp != auxListaEp->ultimo; auxEp = auxEp->prox) {
 			printf_s("Ep. %d | ", auxEp->id);
 		}
-		printf("\n");
+		return;
+	}
+
+	for (Podcst auxPodcast = auxListPodCst->inicio; auxPodcast != NULL; auxPodcast = auxPodcast->prox) {
+		if (auxPodcast == NULL) return;
+		ListaEp* auxListaEp = auxPodcast->listEpisodios;
+		
+		//checa se o podcast está vazio, se sim avisa
+		if (auxListaEp->inicio == NULL) {
+			printf("Podcast: %s esta vazio \n", auxPodcast->nome);
+		}
+		else {
+			Ep auxEp = auxListaEp->inicio;
+
+			printf("Podcast: %s \n", auxPodcast->nome);
+
+			//O podcast so tem um episodio
+			if (auxEp == auxListaEp->ultimo) {
+				printf_s("Ep. %d | ", auxEp->id);
+				printf("\n");
+				auxEp = auxListaEp->ultimo;
+			}
+
+			for (; auxEp != auxListaEp->ultimo; auxEp = auxEp->prox) {
+				printf_s("Ep. %d | ", auxEp->id);
+			}
+			printf("\n");
+		}
 	}
 }
 
@@ -108,6 +149,10 @@ void mostrar(Plylist playlist) {
  */
 Ep criarEp() {
 	Ep novo = (Ep)malloc(sizeof(Ep));
+
+	printf("Entre com o id do novo ep:");
+	scanf_s("%d", &novo->id);
+
 	novo->prev = NULL;
 	novo->prox = NULL;
 	return novo;
@@ -118,12 +163,16 @@ Ep criarEp() {
  * @param Playlist -> Lista que representa a playlist
  * @param Podcast -> Pocast a qual o episodio criado faz parte
  */
-void adicionarEP(Plylist playlist, Podcst podcast) {
+void adicionarEP(Plylist playlist) {
 	Ep novo = criarEp();
-	novo->id = rand();
 	
+	//a qual podcasta dicionar
+	ListaPodcast* auxListaPodcast = playlist->listPodcast;
+	//corre pela lista até achar o podcast correto
+	Podcst auxPodast = auxListaPodcast->inicio;
+
 	//Adciona ao podcast
-	ListaEp* auxListaEp = podcast->listEpisodios;
+	ListaEp* auxListaEp = auxPodast->listEpisodios;
 	if (auxListaEp->inicio != NULL) novo->prox = auxListaEp->inicio;
 	if (auxListaEp->ultimo == NULL) auxListaEp->ultimo = novo;
 	auxListaEp->inicio = novo;
@@ -134,6 +183,27 @@ void adicionarEP(Plylist playlist, Podcst podcast) {
 * @param Playlist -> Playlist onde o podcast sera incerido
 */
 void adicionarPodcast(Plylist playlist) {
+	Podcst novo = (Podcst)malloc(sizeof(Podcast));
 
+	printf("Entre com o nome do Podcast:");
+	scanf_s("%s", &novo->nome, 10);
+
+	ListaEp* eps = (ListaEp*)malloc(sizeof(ListaEp));
+	eps->inicio = NULL;
+	eps->ultimo = NULL;
+
+	novo->listEpisodios = eps;
+
+	ListaPodcast* listaPodcast = playlist->listPodcast;
+
+	//se a lista estiver vazia
+	if (listaPodcast->inicio == NULL) {
+		listaPodcast->inicio = novo;
+		listaPodcast->ultimo = novo;
+		return;
+	}
+
+	novo->prox = listaPodcast->inicio;
+	listaPodcast->inicio = novo;
 }
 
