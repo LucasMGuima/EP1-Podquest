@@ -115,7 +115,6 @@ void mostrar(Plylist playlist) {
 	}
 
 	for (Podcst auxPodcast = auxListPodCst->inicio; auxPodcast != NULL; auxPodcast = auxPodcast->prox) {
-		if (auxPodcast == NULL) return;
 		ListaEp* auxListaEp = auxPodcast->listEpisodios;
 		
 		//checa se o podcast está vazio, se sim avisa
@@ -140,6 +139,35 @@ void mostrar(Plylist playlist) {
 			printf("\n");
 		}
 	}
+
+	//imprime o ultimo
+	/*
+	Podcst auxPodcast = auxListPodCst->ultimo;
+	ListaEp* auxListaEp = auxPodcast->listEpisodios;
+
+	//checa se o podcast está vazio, se sim avisa
+	if (auxListaEp->inicio == NULL) {
+		printf("Podcast: %s esta vazio \n", auxPodcast->nome);
+	}
+	else {
+		Ep auxEp = auxListaEp->inicio;
+
+		printf("Podcast: %s \n", auxPodcast->nome);
+
+		//O podcast so tem um episodio
+		if (auxEp == auxListaEp->ultimo) {
+			printf_s("Ep. %d | ", auxEp->id);
+			printf("\n");
+			auxEp = auxListaEp->ultimo;
+		}
+
+		for (; auxEp != auxListaEp->ultimo; auxEp = auxEp->prox) {
+			printf_s("Ep. %d | ", auxEp->id);
+		}
+		printf("\n");
+	}
+	*/
+
 }
 
 /**
@@ -184,6 +212,8 @@ void adicionarEP(Plylist playlist) {
 */
 void adicionarPodcast(Plylist playlist) {
 	Podcst novo = (Podcst)malloc(sizeof(Podcast));
+	novo->prox = NULL;
+	novo->prev = NULL;
 
 	printf("Entre com o nome do Podcast:");
 	scanf_s("%s", &novo->nome, 10);
