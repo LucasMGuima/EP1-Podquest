@@ -118,14 +118,14 @@ Plylist criarPlaylist() {
 * @param Playlist -> Lista que representa a playlist
 */
 void mostrar(Plylist playlist) {
-	//playlist esta fazia
-	if (playlist->listPodcast == NULL) {
-		printf_s("A Playlist está vazia \n");
-		return;
-	}
-
 	//imprime todos os episdodios de todos os podcasts contidos na playlist
 	ListaPodcast* auxListPodCst = playlist->listPodcast;
+
+	//playlist esta fazia
+	if (auxListPodCst->inicio == NULL) {
+		printf_s("A Playlist esta vazia \n");
+		return;
+	}
 
 	//checa se so existe um podcast na playlist
 	if (auxListPodCst->inicio == auxListPodCst->ultimo) {
