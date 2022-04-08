@@ -35,14 +35,20 @@ typedef struct playlist {
 	struct ListaPodcast* listPodcast;
 }Playlist;
 
+typedef struct epAtual{
+	struct Episodio* episodio;
+	struct Podcast* podcast;
+}EpAtual;
+
 typedef Episodio* Ep;
 typedef Podcast* Podcst;
 typedef Playlist* Plylist;
+typedef EpAtual* EpisoidoAtual;
 
 void adicionarEP(Plylist playlist);
 void adicionarPodcast(Plylist playlist);
 void remover(Plylist playlist);
-void tocar();
+void tocar(EpisoidoAtual EpAtual, Plylist playlist);
 void shuffle();
 void proximo();
 void mostrar(Plylist playlist);
@@ -63,6 +69,9 @@ int main() {
 */
 void Menu(Plylist playlist) {
 	int op = -1;
+	EpisoidoAtual EpAtual = (EpisoidoAtual)malloc(sizeof(EpisoidoAtual));
+	EpAtual->episodio = NULL;
+	EpAtual->podcast = NULL;
 
 	while (op != 0) {
 		printf("------PODQUEST-------\n");
@@ -70,6 +79,7 @@ void Menu(Plylist playlist) {
 		printf("2. Add Episodio\n");
 		printf("3. Remover Episodio\n");
 		printf("4. Mostrar Playlist\n");
+		printf("5. Tocar\n");
 		printf("0. Fechar\n");
 		printf("---------------------\n");
 		printf("Entre com o numero da opcao: ");
@@ -93,6 +103,9 @@ void Menu(Plylist playlist) {
 			//Mostra todas os Podcasts e seus épisodios
 			case 4:
 				mostrar(playlist);
+				break;
+			case 5:
+				tocar(EpAtual, playlist);
 				break;
 		}
 
@@ -342,6 +355,33 @@ void remover(Plylist playlist) {
 			}
 			break;
 		}
+	}
+}
+
+/*
+*	@brief Emprime na tela o episodio atual e a qual podcast pertence.
+*	@param EpAtual -> Struct que guarda as informações do episodio atual
+*	@param Playlist -> Playlist contem os Podcasts
+*/
+void tocar(EpisoidoAtual EpAtual, Plylist playlist) {
+	ListaPodcast* podcasts = playlist->listPodcast;
+	//se estiver nulo pega o primeiro elemento do primeiro podcast
+	if (EpAtual->episodio == NULL) {
+		//pega o primeiro podcasta da lista
+		EpAtual->podcast = podcasts->inicio;
+
+		//pega o primeiro episodio do podcast
+		Podcast* auxPodcast = podcasts->inicio;
+		ListaEp* auxListEp = auxPodcast->listEpisodios;
+		Episodio* auxEpisodio = auxListEp->inicio;
+		EpAtual->episodio = auxEpisodio;
+	}
+
+	//imprime na tela o podcasta q está tocando
+	if (EpAtual->episodio != NULL) {
+		Episodio* auxEp = EpAtual->episodio;
+		Podcast* auxPodcast = EpAtual->podcast;
+		printf_s("Estou no Ep. %d do Podcast: %s\na", auxEp->id, auxPodcast->nome);
 	}
 }
 
