@@ -9,6 +9,8 @@ typedef struct episodio {
 }Episodio;
 
 typedef struct listaEp {
+	int tamanho;
+
 	struct Episodio* inicio;
 	struct Episodio* ultimo;
 }ListaEp;
@@ -43,14 +45,13 @@ typedef struct epAtual{
 typedef Episodio* Ep;
 typedef Podcast* Podcst;
 typedef Playlist* Plylist;
-typedef EpAtual* EpisoidoAtual;
+typedef EpAtual* EpisodioAtual;
 
 void adicionarEP(Plylist playlist);
 void adicionarPodcast(Plylist playlist);
 void remover(Plylist playlist);
-void tocar(EpisoidoAtual EpAtual, Plylist playlist);
-void shuffle();
-void proximo();
+void tocar(EpisodioAtual EpAtual, Plylist playlist);
+void proximo(EpisodioAtual EpAtual, Plylist playlist, int shuffle);
 void mostrar(Plylist playlist);
 
 void Menu(Plylist playlist);
@@ -69,7 +70,8 @@ int main() {
 */
 void Menu(Plylist playlist) {
 	int op = -1;
-	EpisoidoAtual EpAtual = (EpisoidoAtual)malloc(sizeof(EpisoidoAtual));
+	int shuffle = 0;
+	EpisodioAtual EpAtual = (EpisodioAtual)malloc(sizeof(EpisodioAtual));
 	EpAtual->episodio = NULL;
 	EpAtual->podcast = NULL;
 
@@ -80,6 +82,8 @@ void Menu(Plylist playlist) {
 		printf("3. Remover Episodio\n");
 		printf("4. Mostrar Playlist\n");
 		printf("5. Tocar\n");
+		printf("6. Proximo\n");
+		printf("7. Ativar/Desativar Shuffle\n");
 		printf("0. Fechar\n");
 		printf("---------------------\n");
 		printf("Entre com o numero da opcao: ");
@@ -106,6 +110,19 @@ void Menu(Plylist playlist) {
 				break;
 			case 5:
 				tocar(EpAtual, playlist);
+				break;
+			case 6:
+				proximo(EpAtual, playlist, shuffle);
+				break;
+			case 7:
+				if (shuffle == 0) {
+					shuffle = 1;
+					printf("Shuffle Ligado\n");
+				}
+				else {
+					shuffle = 0;
+					printf("Shuffle Desligado\n");
+				}
 				break;
 		}
 
@@ -248,6 +265,7 @@ void adicionarEP(Plylist playlist) {
 		auxListaEp->ultimo = novo;
 	}
 	auxListaEp->inicio = novo;
+	auxListaEp->tamanho += 1;
 }
 
 /**
@@ -269,6 +287,7 @@ void adicionarPodcast(Plylist playlist) {
 	ListaEp* eps = (ListaEp*)malloc(sizeof(ListaEp));
 	eps->inicio = NULL;
 	eps->ultimo = NULL;
+	eps->tamanho = 0;
 
 	novo->listEpisodios = eps;
 
@@ -359,12 +378,18 @@ void remover(Plylist playlist) {
 }
 
 /*
-*	@brief Emprime na tela o episodio atual e a qual podcast pertence.
+*	@brief Imprime na tela o episodio atual e a qual podcast pertence.
 *	@param EpAtual -> Struct que guarda as informações do episodio atual
 *	@param Playlist -> Playlist contem os Podcasts
 */
-void tocar(EpisoidoAtual EpAtual, Plylist playlist) {
+void tocar(EpisodioAtual EpAtual, Plylist playlist) {
 	ListaPodcast* podcasts = playlist->listPodcast;
+	//checa se a lista está vazia
+	if (podcasts->inicio == NULL) {
+		printf("A playlist esta vazia.\n");
+		return;
+	}
+
 	//se estiver nulo pega o primeiro elemento do primeiro podcast
 	if (EpAtual->episodio == NULL) {
 		//pega o primeiro podcasta da lista
@@ -382,6 +407,91 @@ void tocar(EpisoidoAtual EpAtual, Plylist playlist) {
 		Episodio* auxEp = EpAtual->episodio;
 		Podcast* auxPodcast = EpAtual->podcast;
 		printf_s("Estou no Ep. %d do Podcast: %s\na", auxEp->id, auxPodcast->nome);
+	}
+}
+
+/*
+*	@brief Passa para o proximo episodio da fila, se o shuffle estiver ligado vai para um aleatorio.
+*	@param EpAtual -> Struct que guarda as informações do episodio atual
+*	@param Playlist -> Playlist contem os Podcasts
+*	@param Shuffle -> Esta do shuffle 0[Desligado] 1[Ligado] 
+*/
+void proximo(EpisodioAtual EpAtual, Plylist playlist, int shuffle) {
+	//checa se a playlist está vazia
+	ListaPodcast* podcasts = playlist->listPodcast;
+	//checa se a lista está vazia
+	if (podcasts->inicio == NULL) {
+		printf("A playlist esta vazia.\n");
+		return;
+	}
+
+	//se estiver nulo pega o primeiro elemento do primeiro podcast
+	if (EpAtual->episodio == NULL) {
+		//pega o primeiro podcasta da lista
+		EpAtual->podcast = podcasts->inicio;
+
+		//pega o primeiro episodio do podcast
+		Podcast* auxPodcast = podcasts->inicio;
+		ListaEp* auxListEp = auxPodcast->listEpisodios;
+		Episodio* auxEpisodio = auxListEp->inicio;
+		EpAtual->episodio = auxEpisodio;
+	}
+
+	if (shuffle == 0) {
+		//shuffle desligado
+		Episodio* auxEp = EpAtual->episodio;
+		Podcast* auxPodcast = EpAtual->podcast;
+
+		if (auxEp->prox != NULL) {
+			//Episodio tem um proximo
+			EpAtual->episodio = auxEp->prox;
+		}
+		else if (auxPodcast->prox != NULL) {
+			//Podcast tem um proximo
+			EpAtual->podcast = auxPodcast->prox;
+			ListaEp* auxListaEp = auxPodcast->listEpisodios;
+			EpAtual->podcast = auxListaEp->inicio;
+		}
+		else {
+			printf("A playlist chegou no final.\n");
+		}
+	}
+	else if (shuffle == 1) {
+		//shuffle ligado
+		Episodio* antigoEp = EpAtual->episodio;
+		Podcast* antigoPodcast = EpAtual->podcast;
+
+		//pega um podcast aleatorio, pode ser o mesmo que esta
+		int qntPodcast = playlist->tamanho;
+		int idNovoPodcast = rand(qntPodcast);
+
+		ListaPodcast* auxListaPodcast = playlist->listPodcast;
+		for (Podcast* podcast = auxListaPodcast->inicio;podcast->prox != NULL; podcast = podcast->prox) {
+			if (idNovoPodcast == podcast->id) {
+				//encontro o novo podcast
+				EpAtual->podcast = podcast;
+				break;
+			}
+		}
+
+		//Pega um episodio aleatorio dentro da lista de podcast
+		Podcast* podcast = EpAtual->podcast;
+		ListaEp* listaEp = podcast->listEpisodios;
+		
+		int qntEp = listaEp->tamanho;
+		int novoIdEp;
+		
+		do {
+			novoIdEp = (int) rand(qntEp+1);
+		} while (novoIdEp == antigoEp->id);
+
+		for (Episodio* ep = listaEp->inicio; ep->prox != NULL; ep = ep->prev) {
+			if (ep->id == novoIdEp) {
+				//encontro o ep
+				EpAtual->episodio = ep;
+				break;
+			}
+		}
 	}
 }
 
